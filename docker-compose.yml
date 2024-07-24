@@ -157,6 +157,7 @@ services:
       MYSQL_ROOT_PASSWORD: "root_password"  
 
   postgres:
+    platform: linux/x86_64/v8
     deploy:
       resources:
         limits:
@@ -171,7 +172,9 @@ services:
       - 'postgres:/var/lib/postgresql/data'
 
   web:
+    platform: linux/x86_64/v8
     image: 'openfn/lightning:latest'
+    command: /bin/sh -c "/app/bin/lightning eval Lightning.Release.migrate && /app/bin/server"
     deploy:
       resources:
         limits:
@@ -191,6 +194,7 @@ services:
       - '${LIGHTNING_EXTERNAL_PORT:-127.0.0.1:${PORT:-4000}}:${URL_PORT:-4000}'
 
   worker:
+    platform: linux/x86_64/v8
     image: 'openfn/ws-worker:latest'
     deploy:
       resources:
