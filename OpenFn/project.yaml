@@ -5,7 +5,7 @@ workflows:
     name: Workflow [TEST] Get TEIs from DHIS2
     jobs:
       [TEST]-Get-TEIs-from-DHIS2:
-        name: [TEST] Get TEIs from DHIS2
+        name: TEST Get TEIs from DHIS2
         adaptor: '@openfn/dhis2@v3.2.11'
         enabled: false
         globals:
@@ -41,11 +41,12 @@ workflows:
         source_trigger: Daily-@-6:00AM
         target_job: [TEST]-Get-TEIs-from-DHIS2
         condition: always
+        condition_type: always
   Workflow-WF2-1.-Get-patients-from-OpenMRS:
     name: Workflow WF2-1. Get patients from OpenMRS
     jobs:
       WF2-1.-Get-patients-from-OpenMRS:
-        name: WF2-1. Get patients from OpenMRS
+        name: WF2-1 Get patients from OpenMRS
         adaptor: '@openfn/openmrs@v1.1.1'
         enabled: true
         globals:
@@ -101,7 +102,7 @@ workflows:
           });
           
       WF2-2.-Upsert-TEIs-in-DHIS2:
-        name: WF2-2. Upsert TEIs in DHIS2
+        name: WF2-2 Upsert TEIs in DHIS2
         adaptor: '@openfn/dhis2@v3.2.11'
         enabled: true
         globals:
@@ -250,7 +251,7 @@ workflows:
           fn(state => ({ ...state, data: {} }));
           
       WF2-3.-Get-new-Encounters-from-OMRS:
-        name: WF2-3. Get new Encounters from OMRS
+        name: WF2-3 Get new Encounters from OMRS
         adaptor: '@openfn/openmrs@v1.1.1'
         enabled: true
         globals:
@@ -278,7 +279,7 @@ workflows:
           });
           
       WF2-4.-Get-OCL-Mapping:
-        name: WF2-4. Get OCL Mapping
+        name: WF2-4 Get OCL Mapping
         adaptor: '@openfn/ocl@v1.1.0'
         enabled: true
         globals:
@@ -350,7 +351,7 @@ workflows:
           // );
           
       WF2-5.-Create-Events-in-DHIS2:
-        name: WF2-5. Create Events in DHIS2
+        name: WF2-5 Create Events in DHIS2
         adaptor: '@openfn/dhis2@v3.2.11'
         enabled: true
         globals:
@@ -494,27 +495,32 @@ workflows:
         source_trigger: Daily-@-6:00AM
         target_job: WF2-1.-Get-patients-from-OpenMRS
         condition: always
+        condition_type: always
       WF2-1.-Get-patients-from-OpenMRS->WF2-2.-Upsert-TEIs-in-DHIS2:
         source_job: WF2-1.-Get-patients-from-OpenMRS
         target_job: WF2-2.-Upsert-TEIs-in-DHIS2
         condition: on_job_success
+        condition_type: always
       WF2-2.-Upsert-TEIs-in-DHIS2->WF2-3.-Get-new-Encounters-from-OMRS:
         source_job: WF2-2.-Upsert-TEIs-in-DHIS2
         target_job: WF2-3.-Get-new-Encounters-from-OMRS
         condition: on_job_success
+        condition_type: always
       WF2-3.-Get-new-Encounters-from-OMRS->WF2-4.-Get-OCL-Mapping:
         source_job: WF2-3.-Get-new-Encounters-from-OMRS
         target_job: WF2-4.-Get-OCL-Mapping
         condition: on_job_success
+        condition_type: always
       WF2-4.-Get-OCL-Mapping->WF2-5.-Create-Events-in-DHIS2:
         source_job: WF2-4.-Get-OCL-Mapping
         target_job: WF2-5.-Create-Events-in-DHIS2
         condition: on_job_success
+        condition_type: always
   Workflow-WF1-1.-Get-active-TEIs-from-DHIS2:
     name: Workflow WF1-1. Get active TEIs from DHIS2
     jobs:
       WF1-1.-Get-active-TEIs-from-DHIS2:
-        name: WF1-1. Get active TEIs from DHIS2
+        name: WF1-1 Get active TEIs from DHIS2
         adaptor: '@openfn/dhis2@v3.2.11'
         enabled: true
         globals:
@@ -569,7 +575,7 @@ workflows:
           );
           
       WF1-2.-Create-Patients-in-OpenMRS:
-        name: WF1-2. Create Patients in OpenMRS
+        name: WF1-2 Create Patients in OpenMRS
         adaptor: '@openfn/openmrs@v1.0.1'
         enabled: true
         globals:
@@ -697,7 +703,7 @@ workflows:
           fn(state => ({ ...state, data: {}, references: [] }));
           
       WF1-3.-Update-DHIS2-TEIs-with-uuid:
-        name: WF1-3. Update DHIS2 TEIs with uuid
+        name: WF1-3 Update DHIS2 TEIs with uuid
         adaptor: '@openfn/dhis2@v3.2.11'
         enabled: true
         globals:
@@ -748,14 +754,17 @@ workflows:
         source_trigger: Yearly-on-Jan-1
         target_job: WF1-1.-Get-active-TEIs-from-DHIS2
         condition: always
+        condition_type: always
       WF1-1.-Get-active-TEIs-from-DHIS2->WF1-2.-Create-Patients-in-OpenMRS:
         source_job: WF1-1.-Get-active-TEIs-from-DHIS2
         target_job: WF1-2.-Create-Patients-in-OpenMRS
         condition: on_job_success
+        condition_type: always
       WF1-2.-Create-Patients-in-OpenMRS->WF1-3.-Update-DHIS2-TEIs-with-uuid:
         source_job: WF1-2.-Create-Patients-in-OpenMRS
         target_job: WF1-3.-Update-DHIS2-TEIs-with-uuid
         condition: on_job_success
+        condition_type: always
   Workflow-test-http-get:
     name: Workflow test http get
     jobs:
@@ -794,3 +803,4 @@ workflows:
         source_trigger: Daily-@-6:00AM
         target_job: test-http-get
         condition: always
+        condition_type: always
