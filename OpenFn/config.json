@@ -1,0 +1,6 @@
+{
+  "endpoint": "http://localhost:4000",
+  "statePath": "./projectState.json",
+  "specPath": "./project.yaml",
+  "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJKb2tlbiIsImlhdCI6MTcyMjMxOTY4NiwiaXNzIjoiSm9rZW4iLCJqdGkiOiIydmplaDg4cWtka2toMW41aDAwMDA1MjIiLCJuYmYiOjE3MjIzMTk2ODYsInVzZXJfaWQiOiI4NzA2MDBmNi1jMWEzLTRmNGQtOTc5OC1hOTAyNjkwODA3MzgifQ.kTiymGqw5nH07DPrY93K7gqo3WuGPhe7vD2wsGCLl5U"
+}

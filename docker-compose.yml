@@ -156,7 +156,79 @@ services:
       MYSQL_DATABASE: "zabbix"
       MYSQL_ROOT_PASSWORD: "root_password"  
 
+  postgres:
+    platform: linux/x86_64/v8
+    deploy:
+      resources:
+        limits:
+          cpus: '${DOCKER_POSTGRES_CPUS:-0}'
+          memory: '${DOCKER_POSTGRES_MEMORY:-0}'
+    env_file:
+      - 'OpenFn/openfn.env'
+    image: 'postgres:14.2-alpine'
+    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+    stop_grace_period: '3s'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+
+  migrations:
+    platform: linux/x86_64/v8
+    image: 'openfn/lightning:latest'
+    command: ["/app/bin/lightning", "eval", "Lightning.Release.migrate"]
+    env_file:
+      - 'OpenFn/openfn.env'
+    depends_on:
+      - postgres
+
+  web:
+    platform: linux/x86_64/v8
+    image: 'openfn/lightning:latest'
+    command: ["/app/bin/server"]
+    deploy:
+      resources:
+        limits:
+          cpus: '${DOCKER_WEB_CPUS:-0}'
+          memory: '${DOCKER_WEB_MEMORY:-0}'
+    env_file:
+      - 'OpenFn/openfn.env'
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      postgres: 
+        condition: service_started
+
+    healthcheck:
+      test: '${DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:4000/health_check}'
+      interval: '10s'
+      timeout: '3s'
+      start_period: '5s'
+      retries: 3
+    ports:
+      - '${LIGHTNING_EXTERNAL_PORT:-127.0.0.1:${PORT:-4000}}:${URL_PORT:-4000}'
+
+  worker:
+    platform: linux/x86_64/v8
+    image: 'openfn/ws-worker:latest'
+    deploy:
+      resources:
+        limits:
+          cpus: '${DOCKER_WORKER_CPUS:-0}'
+          memory: '${DOCKER_WEB_MEMORY:-0}'
+    depends_on:
+      web:
+        condition: service_healthy
+        restart: true
+    env_file:
+      - 'OpenFn/openfn.env'
+    command:
+      ['pnpm', 'start:prod', '-l', 'ws://web:${URL_PORT:-4000}/worker']
+    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+    stop_grace_period: '3s'
+    expose:
+      - '2222'
+
 volumes:
   openmrs-data: ~
   db-data: ~
   zabbix-db-storage: ~
+  postgres: {}
