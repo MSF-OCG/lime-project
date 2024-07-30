@@ -171,10 +171,19 @@ services:
     volumes:
       - 'postgres:/var/lib/postgresql/data'
 
+  migrations:
+    platform: linux/x86_64/v8
+    image: 'openfn/lightning:latest'
+    command: ["/app/bin/lightning", "eval", "Lightning.Release.migrate"]
+    env_file:
+      - 'OpenFn/openfn.env'
+    depends_on:
+      - postgres
+
   web:
     platform: linux/x86_64/v8
     image: 'openfn/lightning:latest'
-    command: /bin/sh -c "/app/bin/lightning eval Lightning.Release.migrate && /app/bin/server"
+    command: ["/app/bin/server"]
     deploy:
       resources:
         limits:
@@ -183,7 +192,11 @@ services:
     env_file:
       - 'OpenFn/openfn.env'
     depends_on:
-      - postgres
+      migrations:
+        condition: service_completed_successfully
+      postgres: 
+        condition: service_started
+
     healthcheck:
       test: '${DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:4000/health_check}'
       interval: '10s'
